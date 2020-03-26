@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class BattleshipGame implements IBattleshipGame {
     private static final int TOTAL_SHIPS = 10;
-    private static final int OCEAN_SIZE = 10;
+    public static final int OCEAN_SIZE = 10;
     private IHitAdapterFactory hitAdapterFactory;
     private IPlacementAdapter placementAdapter;
     private IShipFactory shipFactory;
@@ -157,5 +157,12 @@ public class BattleshipGame implements IBattleshipGame {
         public static <T, U> Pair<T, U> of(T first, U second) {
             return new Pair<>(first, second);
         }
+    }
+
+    public static void main(String[] args) {
+        var game = new BattleshipGame(new HitAdapterFactory(), new PlacementAdapter(), new ShipFactory(),
+                new HitAdapterCollection());
+        game.placeShipsRandomly();
+        System.out.println(game.hitCount);
     }
 }

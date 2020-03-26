@@ -7,7 +7,7 @@ public class HitAdapter implements IHitAdapter {
     public HitAdapter(Ship ship) {
         this.ship = ship;
 
-        Rectangle.Point leftTopPoint = Rectangle.Point.of(ship.getBowColumn(), ship.getBowColumn());
+        Rectangle.Point leftTopPoint = Rectangle.Point.of(ship.getBowColumn(), ship.getBowRow());
 
         Rectangle.Point rightBottomPoint = null;
 
