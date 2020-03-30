@@ -99,19 +99,22 @@ class HitAdapterCollectionTest {
     @Test
     void hit() {
         var collection = prepareData1();
-        assertTrue(collection.hit(Rectangle.Point.of(7, 0)));
+        assertEquals(collection.hit(Rectangle.Point.of(7, 0)), IHitAdapterCollection.HitResults.SUNK);
         assertEquals(collection.getSunkCount(), 1);
         assertEquals(collection.shipPartState(Rectangle.Point.of(7, 0)), ShipPartState.SUNK);
 
-        assertFalse(collection.hit(Rectangle.Point.of(7, 0)));
+        assertEquals(collection.hit(Rectangle.Point.of(7, 0)), IHitAdapterCollection.HitResults.MISS);
         assertEquals(collection.getSunkCount(), 1);
+        assertEquals(collection.getDamagedCount(), 0);
 
-        assertFalse(collection.hit(Rectangle.Point.of(0, 0)));
-        assertTrue(collection.hit(Rectangle.Point.of(1, 0)));
+        assertEquals(collection.hit(Rectangle.Point.of(0, 0)), IHitAdapterCollection.HitResults.MISS);
+        assertEquals(collection.hit(Rectangle.Point.of(1, 0)), IHitAdapterCollection.HitResults.HIT);
         assertEquals(collection.shipPartState(Rectangle.Point.of(1, 0)), ShipPartState.DAMAGED);
-        assertTrue(collection.hit(Rectangle.Point.of(1, 1)));
+        assertEquals(collection.getDamagedCount(), 1);
+        assertEquals(collection.hit(Rectangle.Point.of(1, 1)), IHitAdapterCollection.HitResults.SUNK);
         assertEquals(collection.shipPartState(Rectangle.Point.of(1, 0)), ShipPartState.SUNK);
         assertEquals(collection.shipPartState(Rectangle.Point.of(1, 1)), ShipPartState.SUNK);
+        assertEquals(collection.getDamagedCount(), 0);
 
         assertEquals(collection.getSunkCount(), 2);
     }

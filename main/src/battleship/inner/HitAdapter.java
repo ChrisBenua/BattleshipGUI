@@ -1,9 +1,16 @@
 package battleship.inner;
 
+/**
+ * Handles hit logic for ships
+ */
 public class HitAdapter implements IHitAdapter {
     private Ship ship;
     private Rectangle rectangle;
 
+    /**
+     * Constructs new HitAdapter instance
+     * @param ship ship to handle
+     */
     public HitAdapter(Ship ship) {
         this.ship = ship;
 
@@ -19,6 +26,11 @@ public class HitAdapter implements IHitAdapter {
         this.rectangle = new Rectangle(leftTopPoint, rightBottomPoint);
     }
 
+    /**
+     * Gets position of point in hit array
+     * @param point hit point
+     * @return hit array index
+     */
     private int getPosition(Rectangle.Point point) {
         if (ship.isHorizontal()) {
             return point.getX() - rectangle.getLeftTopPoint().getX();
@@ -27,16 +39,30 @@ public class HitAdapter implements IHitAdapter {
         }
     }
 
+    /**
+     * Gets ship
+     * @return ship
+     */
     @Override
     public Ship getShip() {
         return ship;
     }
 
+    /**
+     * Checks if point is inside ship
+     * @param point point to check
+     * @return true if point is inside ship false otherwise
+     */
     @Override
     public boolean isPointInsideShip(Rectangle.Point point) {
         return this.rectangle.isIn(point);
     }
 
+    /**
+     * Performs hit in given point
+     * @param target target point
+     * @return true if shot hits the target false otherwise
+     */
     @Override
     public boolean hit(Rectangle.Point target) {
         if (!this.rectangle.isIn(target)) {
@@ -53,6 +79,11 @@ public class HitAdapter implements IHitAdapter {
         }
     }
 
+    /**
+     * Gets state of ship part at given point
+     * @param point point of ship to get state of
+     * @return ShipPartState
+     */
     @Override
     public ShipPartState shipPartState(Rectangle.Point point) {
         if (!this.rectangle.isIn(point)) {
@@ -60,11 +91,7 @@ public class HitAdapter implements IHitAdapter {
         }
 
         boolean[] hit = ship.getHit();
-        boolean isSunk = true;
-
-        for (int i = 0; i < ship.getLength(); ++i) {
-            isSunk &= hit[i];
-        }
+        boolean isSunk = ship.isSunk();
 
         if (isSunk) {
             return ShipPartState.SUNK;

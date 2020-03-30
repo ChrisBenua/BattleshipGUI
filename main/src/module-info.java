@@ -3,4 +3,6 @@ open module BattleshipGUI {
     requires javafx.controls;
 
     exports battleship.gui;
+    exports battleship.guiservices;
+    exports battleship.inner;
 }

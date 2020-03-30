@@ -1,15 +1,24 @@
 package battleship.gui;
 
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import static javafx.scene.paint.Color.BLACK;
-import static javafx.scene.paint.Color.YELLOW;
 
+/**
+ * Container for Ocean's cell
+ */
 public class OceanCell extends AnchorPane {
-    public OceanCell(double width, double height) {
+    /**
+     * constructs new instance of Ocean Cell
+     * @param width width of container
+     * @param height height of container
+     * @param fillColor fill color of container
+     */
+    public OceanCell(double width, double height, Color fillColor) {
         Rectangle border = new Rectangle(width, height);
-        border.setFill(YELLOW);
+        border.setFill(fillColor);
         border.setStroke(BLACK);
         border.setStrokeWidth(1);
 
@@ -19,6 +28,5 @@ public class OceanCell extends AnchorPane {
         AnchorPane.setRightAnchor(border, 0.);
 
         this.getChildren().add(border);
-
     }
 }

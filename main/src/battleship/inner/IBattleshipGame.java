@@ -1,9 +1,13 @@
 package battleship.inner;
 
+import battleship.gui.RootPane;
+
 public interface IBattleshipGame {
     void placeShipsRandomly();
 
-    boolean shootAt(int row, int column);
+    BattleshipGame.ShotResults shootAt(int row, int column);
+
+    void setSubscriber(ISubscriber<RootPane.GameEvents> subscriber);
 
     int getShotsFired();
 
@@ -11,11 +15,15 @@ public interface IBattleshipGame {
 
     int getShipsSunk();
 
+    int getDamagedShipsCount();
+
+    int getUntouchedShipsCount();
+
     boolean isGameOver();
 
-    OceanState[][] getOceanState();
+    CellState[][] getOceanState();
 
-    public static enum OceanState {
+    public static enum CellState {
         EMPTY, MISS, DAMAGED, SUNK
     }
 }

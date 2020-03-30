@@ -22,6 +22,15 @@ public class Ship {
         return hit;
     }
 
+    public boolean isSunk() {
+        boolean isSunk = true;
+        for (int i = 0; i < hit.length; ++i) {
+            isSunk &= hit[i];
+        }
+
+        return isSunk;
+    }
+
     public void setBowRow(int bowRow) {
         this.bowRow = bowRow;
     }

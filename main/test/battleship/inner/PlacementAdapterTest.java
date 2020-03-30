@@ -25,6 +25,13 @@ class PlacementAdapterTest {
         ship.setBowRow(7);
         adapter.canAddShip(ship, true);
 
+        ship = factory.destroyer();
+        ship.setHorizontal(true);
+        ship.setBowRow(0);
+        ship.setBowColumn(0);
+
+        assertTrue(adapter.canAddShip(ship, false));
+
         var newShip = factory.submarine();
         newShip.setBowRow(7);
         newShip.setBowColumn(0);

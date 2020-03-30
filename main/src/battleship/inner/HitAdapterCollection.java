@@ -4,25 +4,62 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Handles hits for collection of ships
+ */
 public class HitAdapterCollection implements IHitAdapterCollection {
     private List<IHitAdapter> hitAdapters = new ArrayList<>();
+    private Optional<IEventsLogger> logger = Optional.empty();
 
+    /**
+     * Adds hit adapter of ship
+     * @param adapter hit adapter of ship
+     */
     @Override
     public void add(IHitAdapter adapter) {
         hitAdapters.add(adapter);
     }
 
+    /**
+     * Checks if given point is inside any ship
+     * @param point target point
+     * @return true if given point is inside any ship false otherwise
+     */
     @Override
     public boolean isPointInsideAnyShip(Rectangle.Point point) {
         return findByPoint(point).isPresent();
     }
 
+    /**
+     * Perform a shot to given point
+     * @param target point to perform shot in
+     * @return MISS if target point is outside, HIT if ship was damaged, SUNK if ship is sunk after this shot
+     */
     @Override
-    public boolean hit(Rectangle.Point target) {
+    public HitResults hit(Rectangle.Point target) {
         var adapter = findByPoint(target);
-        return adapter.map(adapter_ -> adapter_.hit(target)).orElse(false);
+        return adapter.map(adapter_ -> {
+            boolean result = adapter_.hit(target);
+             if (result) {
+                 if (adapter_.getShip().isSunk()) {
+                     logger.ifPresent(logger_ -> {
+                         logger_.add("You just sunk ship of type: " + adapter_.getShip().getShipType());
+                     });
+                     return HitResults.SUNK;
+                 } else {
+                     return HitResults.HIT;
+                 }
+            } else {
+                return HitResults.MISS;
+            }
+        }).orElse(HitResults.MISS);
     }
 
+    /**
+     * Gets state of ship part
+     * @param point
+     * @return
+     */
     @Override
     public ShipPartState shipPartState(Rectangle.Point point) {
         var adapter = findByPoint(point);
@@ -34,15 +71,31 @@ public class HitAdapterCollection implements IHitAdapterCollection {
     public int getSunkCount() {
         return hitAdapters.stream().map(el -> {
             var ship = el.getShip();
-            var hit = ship.getHit();
-            boolean isSunk = true;
-
-            for (int i = 0; i < ship.getLength(); ++i) {
-                isSunk &= hit[i];
-            }
+            boolean isSunk = ship.isSunk();
 
             return isSunk ? 1 : 0;
         }).reduce(0, Integer::sum);
+    }
+
+    @Override
+    public int getDamagedCount() {
+        return hitAdapters.stream().map(el -> {
+            var hit = el.getShip().getHit();
+
+            boolean any = false;
+            boolean all = true;
+            for (boolean ht : hit) {
+                any |= ht;
+                all &= ht;
+            }
+
+            return (any && !all) ? 1 : 0;
+        }).reduce(0, Integer::sum);
+    }
+
+    @Override
+    public void setLogger(IEventsLogger logger) {
+        this.logger = Optional.of(logger);
     }
 
     private Optional<IHitAdapter> findByPoint(Rectangle.Point point) {

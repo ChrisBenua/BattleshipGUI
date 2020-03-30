@@ -5,9 +5,17 @@ public interface IHitAdapterCollection {
 
     boolean isPointInsideAnyShip(Rectangle.Point point);
 
-    boolean hit(Rectangle.Point target);
+    HitResults hit(Rectangle.Point target);
 
     ShipPartState shipPartState(Rectangle.Point point);
 
     int getSunkCount();
+
+    int getDamagedCount();
+
+    void setLogger(IEventsLogger logger);
+
+    public static enum HitResults {
+        MISS, HIT, SUNK
+    }
 }
