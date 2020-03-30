@@ -1,5 +1,8 @@
 package battleship.inner;
 
+/**
+ * Class responsible for creating ships
+ */
 public class ShipFactory implements IShipFactory {
     @Override
     public Ship submarine() {

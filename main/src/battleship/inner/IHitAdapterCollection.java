@@ -31,10 +31,22 @@ public interface IHitAdapterCollection {
      */
     ShipPartState shipPartState(Rectangle.Point point);
 
+    /**
+     * Gets amount of sunk ships
+     * @return amount of sunk ships
+     */
     int getSunkCount();
 
+    /**
+     * Gets amount of damaged ships
+     * @return amount of damaged ships
+     */
     int getDamagedCount();
 
+    /**
+     * Sets event logger
+     * @param logger events logger
+     */
     void setLogger(IEventsLogger logger);
 
     public static enum HitResults {

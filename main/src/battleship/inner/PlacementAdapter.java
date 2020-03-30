@@ -2,6 +2,9 @@ package battleship.inner;
 
 import java.util.ArrayList;
 
+/**
+ * Class for handling valid ship placement
+ */
 public class PlacementAdapter implements IPlacementAdapter {
     private ArrayList<Rectangle> busyRectangles = new ArrayList<>();
     private int width;
