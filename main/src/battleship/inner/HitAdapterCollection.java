@@ -67,6 +67,10 @@ public class HitAdapterCollection implements IHitAdapterCollection {
                 .orElseThrow(() -> new IllegalArgumentException("point is not inside any ship"));
     }
 
+    /**
+     * Gets amount of sunk ships
+     * @return amount of sunk ships
+     */
     @Override
     public int getSunkCount() {
         return hitAdapters.stream().map(el -> {
@@ -77,6 +81,10 @@ public class HitAdapterCollection implements IHitAdapterCollection {
         }).reduce(0, Integer::sum);
     }
 
+    /**
+     * Gets amount of damaged ships
+     * @return amount of damaged ships
+     */
     @Override
     public int getDamagedCount() {
         return hitAdapters.stream().map(el -> {
@@ -93,11 +101,20 @@ public class HitAdapterCollection implements IHitAdapterCollection {
         }).reduce(0, Integer::sum);
     }
 
+    /**
+     * Sets events logger
+     * @param logger logger
+     */
     @Override
     public void setLogger(IEventsLogger logger) {
         this.logger = Optional.of(logger);
     }
 
+    /**
+     * Finds Ship's hit adapter by given point
+     * @param point target point
+     * @return IHitAdapter if there is satisfying, empty otherwise
+     */
     private Optional<IHitAdapter> findByPoint(Rectangle.Point point) {
         return hitAdapters.stream().filter(adapter -> adapter.isPointInsideShip(point)).findFirst();
     }
