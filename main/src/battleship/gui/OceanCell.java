@@ -1,6 +1,8 @@
 package battleship.gui;
 
-import javafx.scene.layout.AnchorPane;
+import javafx.beans.binding.NumberBinding;
+import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -9,24 +11,32 @@ import static javafx.scene.paint.Color.BLACK;
 /**
  * Container for Ocean's cell
  */
-public class OceanCell extends AnchorPane {
+public class OceanCell extends StackPane {
+    private Rectangle border;
     /**
      * constructs new instance of Ocean Cell
-     * @param width width of container
-     * @param height height of container
      * @param fillColor fill color of container
      */
-    public OceanCell(double width, double height, Color fillColor) {
-        Rectangle border = new Rectangle(width, height);
+    public OceanCell(Color fillColor, NumberBinding binding) {
+        Rectangle border = new Rectangle();
+        this.border = border;
         border.setFill(fillColor);
         border.setStroke(BLACK);
         border.setStrokeWidth(1);
 
-        AnchorPane.setBottomAnchor(border, 0.);
-        AnchorPane.setTopAnchor(border, 0.);
-        AnchorPane.setLeftAnchor(border, 0.);
-        AnchorPane.setRightAnchor(border, 0.);
+        border.widthProperty().bind(binding.subtract(0.5));
+        border.heightProperty().bind(binding.subtract(0.5));
+
+        this.setAlignment(Pos.CENTER_LEFT);
 
         this.getChildren().add(border);
+    }
+
+    /**
+     * updates fill color
+     * @param fillColor new fill color
+     */
+    void updateFill(Color fillColor) {
+        this.border.setFill(fillColor);
     }
 }

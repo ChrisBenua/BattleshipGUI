@@ -35,12 +35,14 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         RootPane root = new RootPane(battleshipGame);
         root.setApplication(this);
         battleshipGame.setSubscriber(root);
-        var oceanGridPane = new OceanGridPane(300, 300, battleshipGame.getOceanState(),
+        var oceanGridPane = new OceanGridPane(battleshipGame.getOceanState(),
                 assembly.getOceanCellStateColorMapper(), assembly.getOceanCellEventHandlerFactory(), root);
 
         root.setChildren(oceanGridPane, eventsLogContainer, statsContainer);
 
         var scene = new Scene(root, 500, 500);
+        primaryStage.setMinHeight(450);
+        primaryStage.setMinWidth(500);
         scene.getStylesheets().add(getClass().getResource("text-area.css").toExternalForm());
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (keyEvent) -> {
@@ -72,7 +74,7 @@ public class BattleshipApplication extends Application implements IEndGameReacto
      * @param primaryStage window of current JavaFX app
      */
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
         primaryStage.setScene(startGame());
