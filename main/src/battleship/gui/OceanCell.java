@@ -24,8 +24,8 @@ public class OceanCell extends StackPane {
         border.setStroke(BLACK);
         border.setStrokeWidth(1);
 
-        border.widthProperty().bind(binding.subtract(0.5));
-        border.heightProperty().bind(binding.subtract(0.5));
+        border.widthProperty().bind(binding.subtract(1));
+        border.heightProperty().bind(binding.subtract(1));
 
         this.setAlignment(Pos.CENTER_LEFT);
 

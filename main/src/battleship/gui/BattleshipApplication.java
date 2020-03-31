@@ -42,7 +42,7 @@ public class BattleshipApplication extends Application implements IEndGameReacto
 
         var scene = new Scene(root, 500, 500);
         primaryStage.setMinHeight(450);
-        primaryStage.setMinWidth(500);
+        primaryStage.setMinWidth(520);
         scene.getStylesheets().add(getClass().getResource("text-area.css").toExternalForm());
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (keyEvent) -> {

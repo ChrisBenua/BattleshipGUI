@@ -27,14 +27,12 @@ public class RootPane extends GridPane
         this.container = gameStatsContainer;
         var columnConstraint1 = new ColumnConstraints();
         columnConstraint1.setPercentWidth(50);
-        //columnConstraint1.setHgrow(Priority.ALWAYS);
         var columnConstraint2 = new ColumnConstraints();
         columnConstraint2.setPercentWidth(50);
         this.getColumnConstraints().addAll(columnConstraint1, columnConstraint2);
 
         var rowConstraint1 = new RowConstraints();
         rowConstraint1.setPercentHeight(65);
-        //rowConstraint1.setVgrow(Priority.ALWAYS);
         var rowConstraint2 = new RowConstraints();
         rowConstraint2.setPercentHeight(35);
         this.getRowConstraints().addAll(rowConstraint1, rowConstraint2);
@@ -42,8 +40,6 @@ public class RootPane extends GridPane
         this.add(oceanGridPane, 0, 0);
         this.add(eventLogsContainer, 0, 1, 2, 1);
         this.add(container, 1, 0);
-        //this.getChildren().add(oceanGridPane);
-        //this.oceanGridPane.setAlignment(Pos.CENTER_LEFT);
     }
 
     /**
