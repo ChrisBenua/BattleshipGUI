@@ -1,6 +1,7 @@
 package battleship.inner;
 
 import battleship.gui.RootPane;
+import battleship.network.IClientServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ public class BattleshipGame implements IBattleshipGame {
     private boolean[][] hitHistory;
 
     private ISubscriber<RootPane.GameEvents> subscriber;
+
+    private IClientServer clientServer;
 
     /**
      * Construct new BattleshipGame instance with all dependencies
@@ -211,6 +214,11 @@ public class BattleshipGame implements IBattleshipGame {
         }
 
         return states;
+    }
+
+    @Override
+    public void setClientServer(IClientServer clientServer) {
+        this.clientServer = clientServer;
     }
 
     public static class Pair<T, U> {

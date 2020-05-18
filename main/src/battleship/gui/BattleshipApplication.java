@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 public class BattleshipApplication extends Application implements IEndGameReactor {
 
     private Assembly assembly = new Assembly();
+    private battleship.network.Assembly networkAssembly = new battleship.network.Assembly();
     private Stage primaryStage;
     private boolean isCoordsEnterStageShown = false;
 
@@ -75,10 +76,39 @@ public class BattleshipApplication extends Application implements IEndGameReacto
      */
     @Override
     public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
 
-        primaryStage.setScene(startGame());
+        this.primaryStage = primaryStage;
+        var params = getParameters().getRaw();
+        String mode = params.size() > 0 ? params.get(0).toLowerCase() : "server";
+        if (mode.equals("server")) {
+            primaryStage.setScene(startServer());
+        } else {
+            primaryStage.setScene(startClient());
+        }
+        //primaryStage.setScene(startGame());
         primaryStage.show();
+    }
+
+    public Scene startServer() {
+        primaryStage.setTitle("Battleship Game Server");
+
+        var serverStartPane = new ServerStartPane(assembly.getGame(), networkAssembly);
+        var scene = new Scene(serverStartPane, 500, 200);
+        primaryStage.setMinHeight(100);
+        primaryStage.setMinWidth(200);
+
+        return scene;
+    }
+
+    public Scene startClient() {
+        primaryStage.setTitle("Battleship Game Client");
+
+        var serverStartPane = new ClientStartPane(assembly.getGame(), networkAssembly);
+        var scene = new Scene(serverStartPane, 500, 300);
+        primaryStage.setMinHeight(150);
+        primaryStage.setMinWidth(200);
+
+        return scene;
     }
 
     /**

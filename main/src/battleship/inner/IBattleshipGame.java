@@ -1,6 +1,7 @@
 package battleship.inner;
 
 import battleship.gui.RootPane;
+import battleship.network.IClientServer;
 
 /**
  * Interfaces for defining main operations with game
@@ -66,6 +67,8 @@ public interface IBattleshipGame {
      * @return 2-d array of ocean cells states
      */
     CellState[][] getOceanState();
+
+    void setClientServer(IClientServer clientServer);
 
     public static enum CellState {
         EMPTY, MISS, DAMAGED, SUNK
