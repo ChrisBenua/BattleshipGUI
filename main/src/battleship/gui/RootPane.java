@@ -40,6 +40,7 @@ public class RootPane extends GridPane
         this.add(oceanGridPane, 0, 0);
         this.add(eventLogsContainer, 0, 1, 2, 1);
         this.add(container, 1, 0);
+        this.refresh(RefreshValues.ALL);
     }
 
     /**
