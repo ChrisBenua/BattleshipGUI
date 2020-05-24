@@ -56,6 +56,11 @@ public class EndOfGamePane extends GridPane {
         this.add(quitButton, 2, 3);
     }
 
+    /**
+     * Conjugates word "Выстрелы" according to number
+     * @param shotsCount amount of shots
+     * @return conjugated form of word "Выстрел"
+     */
     private String conjugate(int shotsCount) {
         var ending = "Выстрелов";
         if (shotsCount % 10 == 1 && ((shotsCount / 10) % 10) != 1) {

@@ -12,6 +12,9 @@ public interface IPlacementAdapter {
      */
     boolean canAddShip(Ship ship, boolean shouldAdd);
 
+    /**
+     * Clears ships
+     */
     void clear();
 
     /**

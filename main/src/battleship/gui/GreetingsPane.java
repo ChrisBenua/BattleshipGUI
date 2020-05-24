@@ -18,13 +18,28 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Pane for players to greet each other
+ */
 public class GreetingsPane extends GridPane implements IDtoEventsHandler {
     private battleship.network.Assembly networkAssembly;
+    /**
+     * TextField for entering name of player
+     */
     private TextField nameTextField;
     private IClientServer clientServer;
+    /**
+     * Confirmation button for setting player's name
+     */
     private Button greetButton;
     private IBattleshipGame battleshipGame;
 
+    /**
+     * Creates bew GreetingsPane
+     * @param battleshipGame IBattleshipGame to accept player and opponent name
+     * @param clientServer IClientServer for sending messages through sockets
+     * @param networkAssembly assembly to access IDtoReader
+     */
     public GreetingsPane(IBattleshipGame battleshipGame, IClientServer clientServer, battleship.network.Assembly networkAssembly) {
         this.networkAssembly = networkAssembly;
         this.battleshipGame = battleshipGame;
@@ -68,6 +83,10 @@ public class GreetingsPane extends GridPane implements IDtoEventsHandler {
         this.getChildren().add(greetButton);
     }
 
+    /**
+     * Handler for greetButton; sends player's name to his opponent
+     * @param event click event
+     */
     public void greetButtonClickHandler(MouseEvent event) {
         nameTextField.setDisable(true);
         greetButton.setDisable(true);
@@ -78,6 +97,9 @@ public class GreetingsPane extends GridPane implements IDtoEventsHandler {
         shouldQuit();
     }
 
+    /**
+     * Closes current stage if player sent his name and received opponents name
+     */
     private void shouldQuit() {
         if (Objects.nonNull(battleshipGame.getOpponentName()) && Objects.nonNull(battleshipGame.getPlayerName())) {
             var capturedThis = this;
@@ -92,6 +114,10 @@ public class GreetingsPane extends GridPane implements IDtoEventsHandler {
         }
     }
 
+    /**
+     * Processes greeting from player's opponent
+     * @param greetingsDto DTO-instance
+     */
     @Override
     public void processGreetings(GreetingsDto greetingsDto) {
         this.battleshipGame.setOpponentName(greetingsDto.getName());

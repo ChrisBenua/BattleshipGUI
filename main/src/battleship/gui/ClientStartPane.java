@@ -2,7 +2,6 @@ package battleship.gui;
 
 import battleship.inner.IBattleshipGame;
 import battleship.network.Assembly;
-import battleship.network.BattleshipClient;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -11,13 +10,29 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 
+/**
+ * Pane for finding opponents as a client
+ */
 public class ClientStartPane extends ServerStartPane {
+    /**
+     * TextField for entering host
+     */
     private TextField hostTextField;
+    /**
+     * TextField for entering port
+     */
     private TextField portTextField;
 
+    /**
+     * Creates new instance of ClientStartPane
+     * @param game IBattleShipGame which clientServer field will be set
+     * @param handler notifies when connection was established
+     * @param networkAssembly for getting BattleshipClient
+     */
     public ClientStartPane(IBattleshipGame game, IBeforeGreetingHandler handler, Assembly networkAssembly) {
         super(game, handler, networkAssembly);
     }
+
 
     @Override
     void performLayout() {
@@ -52,6 +67,10 @@ public class ClientStartPane extends ServerStartPane {
         this.getChildren().add(submitButton);
     }
 
+    /**
+     * Tries to connect to given host and port
+     * @param event mouse click event
+     */
     @Override
     public void submitButtonClickHandler(MouseEvent event) {
         try {

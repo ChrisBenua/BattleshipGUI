@@ -43,8 +43,15 @@ public interface IHitAdapterCollection {
      */
     int getDamagedCount();
 
+    /**
+     * Gets type of last sunk ship
+     * @return type of last sunk ship
+     */
     String getLastSunkShipType();
 
+    /**
+     * Clears ships
+     */
     void clear();
 
     public static enum HitResults {

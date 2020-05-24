@@ -6,8 +6,17 @@ import java.util.ArrayList;
  * Class for handling valid ship placement
  */
 public class PlacementAdapter implements IPlacementAdapter {
+    /**
+     * list of busy rectangles
+     */
     private ArrayList<Rectangle> busyRectangles = new ArrayList<>();
+    /**
+     * Width of Ocean
+     */
     private int width;
+    /**
+     * Height of Ocean
+     */
     private int height;
 
     @Override

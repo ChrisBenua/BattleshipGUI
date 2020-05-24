@@ -44,9 +44,6 @@ public class HitAdapterCollection implements IHitAdapterCollection {
              if (result) {
                  if (adapter_.getShip().isSunk()) {
                      lastSunkShipType = adapter_.getShip().getShipType();
-//                     logger.ifPresent(logger_ -> {
-//                         logger_.add("You just sunk ship of type: " + adapter_.getShip().getShipType());
-//                     });
                      return HitResults.SUNK;
                  } else {
                      return HitResults.HIT;
@@ -103,11 +100,18 @@ public class HitAdapterCollection implements IHitAdapterCollection {
         }).reduce(0, Integer::sum);
     }
 
+    /**
+     * Gets type of last sunk ship
+     * @return type of last sunk ship
+     */
     @Override
     public String getLastSunkShipType() {
         return lastSunkShipType;
     }
 
+    /**
+     * Clears ships in hitAdapter
+     */
     @Override
     public void clear() {
         hitAdapters.clear();

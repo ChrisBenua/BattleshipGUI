@@ -12,11 +12,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Class for creating TCP/IP socket server
+ */
 public class BattleshipServer implements IServer {
+    /**
+     * Stores status of connection
+     */
     private AtomicBoolean isBusy;
+    /**
+     * Server socket
+     */
     private ServerSocket serverSocket;
+    /**
+     * Connection thread to receive messages
+     */
     private Optional<ConnectionThread> connectionThread = Optional.empty();
+    /**
+     * Queue of not sent messages
+     */
     private ArrayList<ITypedDto> messagesQueue = new ArrayList<>();
+    /**
+     * List of successful connection listeners
+     */
     private List<IOnConnectionHandler> handlerList = new ArrayList<>();
     private Assembly assembly;
 
@@ -48,6 +66,9 @@ public class BattleshipServer implements IServer {
         this.isBusy.set(isBusy);
     }
 
+    /**
+     * Flushes messages to socket connection
+     */
     private void flush() {
         if (connectionThread.isPresent()) {
             var objectMapper = new ObjectMapper();

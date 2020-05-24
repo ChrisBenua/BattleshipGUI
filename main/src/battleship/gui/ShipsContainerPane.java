@@ -14,9 +14,18 @@ import javafx.scene.text.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Interface for handling PlacingShipsOceanGridPane events
+ */
 interface IShipsContainerPaneEventHandler {
+    /**
+     * Notifies when drag was ended
+     */
     void onDragDone();
 
+    /**
+     * Notifies when pane was cleared
+     */
     void onClear();
 }
 

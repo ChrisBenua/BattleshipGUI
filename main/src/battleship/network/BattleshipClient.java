@@ -12,11 +12,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class for connecting to existing TCP/IP server
+ */
 public class BattleshipClient implements IClient {
+    /**
+     * Socket for current connection
+     */
     private Socket clientSocket;
+    /**
+     * Connection thread
+     */
     private Optional<ConnectionThread> connectionThread = Optional.empty();
+    /**
+     * Messages to be sent through TCP/IP sockets
+     */
     private ArrayList<ITypedDto> messagesQueue = new ArrayList<>();
+    /**
+     * Handlers for connection
+     */
     private List<IOnConnectionHandler> handlerList = new ArrayList<>();
+    /**
+     * Assembly for getting network
+     */
     private Assembly assembly;
 
     public BattleshipClient(Assembly assembly) {
@@ -49,6 +67,9 @@ public class BattleshipClient implements IClient {
         }).start();
     }
 
+    /**
+     * Flushes messages to socket connection
+     */
     private void flush() {
         if (connectionThread.isPresent()) {
             var objectMapper = new ObjectMapper();

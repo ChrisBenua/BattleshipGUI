@@ -7,7 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class for reading data from socket
+ */
 public class DtoReader implements IDtoReader {
+    /**
+     * Subscribers to be notified when some instance was read
+     */
     private List<IDtoEventsHandler> subscribers = new ArrayList<>();
 
     @Override

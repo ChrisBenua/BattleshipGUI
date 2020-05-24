@@ -1,14 +1,8 @@
 package battleship.gui;
 
 import battleship.inner.*;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.adapter.JavaBeanBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -20,11 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * DTO for storing info about last dragged ship
+ */
 class CurrentDragInfo {
-    private int row;
-    private int column;
-    private int shipLen;
-    private boolean isHorizontal;
+    /**
+     * Ships bow row
+     */
+    private final int row;
+    /**
+     * Ships bow column
+     */
+    private final int column;
+    /**
+     * Length of ship
+     */
+    private final int shipLen;
+    /**
+     * Is ship places horizontally
+     */
+    private final boolean isHorizontal;
 
     public CurrentDragInfo(int row, int column, int shipLen, boolean isHorizontal) {
         this.row = row;
@@ -51,14 +60,41 @@ class CurrentDragInfo {
 }
 
 
+/**
+ * GridPane for placing ships
+ */
 public class PlacingShipsOceanGridPane extends GridPane implements IShipsContainerPaneEventHandler {
+    /**
+     * All OceanCells
+     */
     private OceanCell[][] cells;
+    /**
+     * List of placed ships
+     */
     private List<Ship> ships = new ArrayList<Ship>();
+    /**
+     * Adapter for checking correctness of placement
+     */
     private IPlacementAdapter adapter;
+    /**
+     * Adapter for making shots on player's field
+     */
     private IHitAdapterCollection hitAdapterCollection;
+    /**
+     * Stores info about last dragged ship
+     */
     private CurrentDragInfo dragInfo = null;
+    /**
+     * Factory for creating hitAdapters for ships
+     */
     private IHitAdapterFactory factory;
+    /**
+     * Property for indicating that all ships were placed
+     */
     private SimpleBooleanProperty isFilledProperty = new SimpleBooleanProperty(false);
+    /**
+     * Factory for creating ships
+     */
     private IShipFactory shipFactory;
 
     public PlacingShipsOceanGridPane(IShipFactory shipFactory,IPlacementAdapter adapter, IHitAdapterCollection hitAdapterCollection, IHitAdapterFactory hitAdapterFactory) {
@@ -72,14 +108,17 @@ public class PlacingShipsOceanGridPane extends GridPane implements IShipsContain
         paint();
     }
 
-    public boolean isFilled() {
-        return ships.size() == 10;
-    }
-
+    /**
+     * Gets placed ships
+     * @return placed ships
+     */
     public List<Ship> getShips() {
         return ships;
     }
 
+    /**
+     * Updates cell's color
+     */
     private void updateCells() {
         for (int i = 0; i < BattleshipGame.OCEAN_SIZE; ++i) {
             for (int j = 0; j < BattleshipGame.OCEAN_SIZE; ++j) {
@@ -104,6 +143,9 @@ public class PlacingShipsOceanGridPane extends GridPane implements IShipsContain
         }
     }
 
+    /**
+     * Layout and drag handlers
+     */
     private void paint() {
         this.getChildren().clear();
         double minSz = Math.min(getWidth(), getHeight());
@@ -168,6 +210,7 @@ public class PlacingShipsOceanGridPane extends GridPane implements IShipsContain
                             }
 
                             adapter.canAddShip(ship, true);
+                            dragInfo = null;
                             hitAdapterCollection.add(factory.hitAdapterFor(ship));
                             success = true;
                         } else {
@@ -226,6 +269,10 @@ public class PlacingShipsOceanGridPane extends GridPane implements IShipsContain
         this.isFilledProperty.set(false);
     }
 
+    /**
+     * Gets isFilledProperty
+     * @return isFilledProperty
+     */
     public SimpleBooleanProperty getIsFilledProperty() {
         return isFilledProperty;
     }

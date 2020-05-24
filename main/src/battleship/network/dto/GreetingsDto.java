@@ -2,9 +2,15 @@ package battleship.network.dto;
 
 import java.io.Serializable;
 
+/**
+ * DTO for sending Greetings
+ */
 public class GreetingsDto implements Serializable, ITypedDto {
     public static final String TYPE = "Greeting";
 
+    /**
+     * Name of player
+     */
     private String name;
 
     public final String type;

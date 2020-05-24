@@ -20,7 +20,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -29,12 +28,27 @@ import java.util.Objects;
 public class RootPane extends GridPane
         implements IRefreshable<RootPane.RefreshValues>, ISubscriber<RootPane.GameEvents>, IDtoEventsHandler {
 
+    /**
+     * Grid for interacting with opponent Ocean and show its state
+     */
     private OceanGridPane opponentOceanGridPane;
     private IBattleshipGame battleshipGame;
+    /**
+     * Grid for showing state of player's Ocean
+     */
     private OceanGridPane playerOceanGridPane;
+    /**
+     * Handles game cancellation
+     */
     private IEndGameReactor application;
+    /**
+     * Label for showing which turn is now
+     */
     private Label isMyTurnLabel;
 
+    /**
+     * Layout
+     */
     public void setChildren(OceanGridPane opponentOceanGridPane, EventLogsContainer eventLogsContainer,
                             OceanGridPane playerOceanGridPane) {
         var playerLabel = new Label("Ваше поле");
@@ -66,7 +80,6 @@ public class RootPane extends GridPane
         for (var pane: List.of(opponentOceanGridPane, playerOceanGridPane)) {
             GridPane.setMargin(pane, new Insets(15, 0, 0, 0));
         }
-
 
         this.add(cancelButton, 0, 1, 1, 1);
         this.add(playerLabel, 0, 0);
@@ -101,6 +114,10 @@ public class RootPane extends GridPane
         this.refresh(RefreshValues.ALL);
     }
 
+    /**
+     * Updates isMyTurnLabel
+     * @param turn which turn is now
+     */
     void updateIsMyTurnLabel(IBattleshipGame.GameTurn turn) {
         String text = "";
         if (turn == IBattleshipGame.GameTurn.ME) {

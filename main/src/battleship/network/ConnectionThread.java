@@ -6,10 +6,25 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
+/**
+ * Thread for receiving messages from sockets
+ */
 public class ConnectionThread extends Thread {
+    /**
+     * Connection socket
+     */
     private Socket socket;
+    /**
+     * Is connection active
+     */
     private boolean isActive = true;
+    /**
+     * Writer
+     */
     private PrintStream outputStreamWriter;
+    /**
+     * DTO reader
+     */
     private IDtoReader reader;
 
     public ConnectionThread(Socket socket, IDtoReader reader) throws IOException {
@@ -19,6 +34,9 @@ public class ConnectionThread extends Thread {
         this.setDaemon(true);
     }
 
+    /**
+     * Closes socket
+     */
     public void deactivate() {
         isActive = false;
         try {
@@ -29,6 +47,10 @@ public class ConnectionThread extends Thread {
         }
     }
 
+    /**
+     * Writes object to socket
+     * @param object string to write
+     */
     public void write(String object) {
         outputStreamWriter.println(object);
     }

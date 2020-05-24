@@ -1,7 +1,6 @@
 package battleship.gui;
 
 import battleship.inner.IBattleshipGame;
-import battleship.network.BattleshipServer;
 import battleship.network.dto.IOnConnectionHandler;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -17,14 +16,32 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Handles successful connection event
+ */
 interface IBeforeGreetingHandler {
     void showGreetingPaneIn(Stage stage);
 }
 
+/**
+ * Pane for starting server
+ */
 public class ServerStartPane extends GridPane implements IOnConnectionHandler {
+    /**
+     * TextField for entering port
+     */
     private TextField portTextField;
+    /**
+     * IBattleshipGame where should set IClientServer
+     */
     IBattleshipGame game;
+    /**
+     * Assembly for getting IServer
+     */
     battleship.network.Assembly networkAssembly;
+    /**
+     * Gets notified successful connections
+     */
     IBeforeGreetingHandler beforeGreetingHandler;
 
     public ServerStartPane(IBattleshipGame game, IBeforeGreetingHandler beforeGreetingHandler, battleship.network.Assembly networkAssembly) {

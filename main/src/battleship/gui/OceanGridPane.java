@@ -5,7 +5,6 @@ import battleship.guiservices.IOceanCellStateColorMapper;
 import battleship.inner.BattleshipGame;
 import battleship.inner.IBattleshipGame;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
@@ -14,6 +13,9 @@ import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
 
+/**
+ * GridPane for interacting with player's/opponent's field
+ */
 public class OceanGridPane extends GridPane {
     IBattleshipGame.CellState[][] states;
     IOceanCellStateColorMapper mapper;
@@ -22,6 +24,14 @@ public class OceanGridPane extends GridPane {
     OceanCell[][] cells;
     ObservableBooleanValue binding;
 
+    /**
+     * Creates new OceanGridPane
+     * @param states current state of each cell
+     * @param mapper maps state of cell to its color
+     * @param factory factory for generating click handlers
+     * @param parent parent to receive notifications
+     * @param binding binding for availability of clicks on cells
+     */
     public OceanGridPane(IBattleshipGame.CellState[][] states,
                          IOceanCellStateColorMapper mapper, IOceanCellEventHandlerFactory factory,
                          IRefreshable<RootPane.RefreshValues> parent, ObservableBooleanValue binding) {
@@ -48,6 +58,9 @@ public class OceanGridPane extends GridPane {
         }
     }
 
+    /**
+     * adds click handler for each cell
+     */
     private void enableMouseClicks() {
         for (int i = 0; i < BattleshipGame.OCEAN_SIZE; ++i) {
             for (int j = 0; j < BattleshipGame.OCEAN_SIZE; ++j) {
@@ -56,6 +69,9 @@ public class OceanGridPane extends GridPane {
         }
     }
 
+    /**
+     * Removes click handlers for each cell
+     */
     private void disableMouseClicks() {
         for (int i = 0; i < BattleshipGame.OCEAN_SIZE; ++i) {
             for (int j = 0; j < BattleshipGame.OCEAN_SIZE; ++j) {
@@ -64,6 +80,10 @@ public class OceanGridPane extends GridPane {
         }
     }
 
+    /**
+     * Updates cells colors
+     * @param states new states of cells
+     */
     public void setStates(IBattleshipGame.CellState[][] states) {
         this.states = states;
         for (int row = 0; row < BattleshipGame.OCEAN_SIZE; ++row) {
@@ -73,6 +93,9 @@ public class OceanGridPane extends GridPane {
         }
     }
 
+    /**
+     * Layout
+     */
     private void paint() {
         this.getChildren().clear();
         double minSz = Math.min(getWidth(), getHeight());

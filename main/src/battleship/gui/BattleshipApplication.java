@@ -151,6 +151,10 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         primaryStage.show();
     }
 
+    /**
+     * Checks if application should be launched as server
+     * @return true if application will act like server false if application will act as a client
+     */
     private boolean isServer() {
         var params = getParameters().getRaw();
         String mode = params.size() > 0 ? params.get(0).toLowerCase() : "server";
@@ -158,6 +162,9 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         return mode.equals("server");
     }
 
+    /**
+     * Shows Stage for finding opponent
+     */
     @Override
     public void onFindOpponentButtonClicked() {
         if (isServer()) {
@@ -167,6 +174,10 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         }
     }
 
+    /**
+     * Initializes hit adapter collection and sends DTO with info about game start
+     * @param ships ships that were placed by user
+     */
     @Override
     public void onPlayButtonClicked(List<Ship> ships) {
         this.assembly.getHitAdapterCollection().clear();
@@ -178,6 +189,11 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         this.assembly.getGame().setPlayerReadyStatus(true);
     }
 
+    /**
+     * Generates Stage for finding opponents as a server
+     * @param stage_ - stage if generation is not needed
+     * @return new Stage if stage_ was null, stage_ otherwise
+     */
     public Stage startServer(Stage stage_) {
         Stage stage = stage_;
         if (Objects.isNull(stage)) {
@@ -201,6 +217,11 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         return stage;
     }
 
+    /**
+     * Generates Stage for finding opponents as a client
+     * @param stage_ - stage if generation is not needed
+     * @return new Stage if stage_ was null, stage_ otherwise
+     */
     public Stage startClient(Stage stage_) {
         Stage stage = stage_;
         if (Objects.isNull(stage)) {
@@ -224,6 +245,9 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         return stage;
     }
 
+    /**
+     * Cancels the game
+     */
     @Override
     public void cancel() {
         this.assembly.getGame().getClientServer().write(new CancelGameDto(this.assembly.getGame().getPlayerName()));
@@ -240,6 +264,10 @@ public class BattleshipApplication extends Application implements IEndGameReacto
         });
     }
 
+    /**
+     * Shows pane for players' greetings in given stage
+     * @param stage in which stage pane should be shown
+     */
     @Override
     public void showGreetingPaneIn(Stage stage) {
         var greetPane = new GreetingsPane(assembly.getGame(), assembly.getGame().getClientServer(), networkAssembly);

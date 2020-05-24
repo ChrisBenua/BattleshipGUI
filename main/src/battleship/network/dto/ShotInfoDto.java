@@ -2,11 +2,20 @@ package battleship.network.dto;
 
 import java.io.Serializable;
 
+/**
+ * DTO for sending info about shots
+ */
 public class ShotInfoDto implements Serializable, ITypedDto {
     public static final String TYPE = "ShotInfo";
 
     private String type = TYPE;
+    /**
+     * Row of shot
+     */
     private int row;
+    /**
+     * Column of shot
+     */
     private int col;
 
     public ShotInfoDto() {
