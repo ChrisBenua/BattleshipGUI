@@ -1,5 +1,6 @@
 package battleship.inner;
 
+import battleship.network.dto.ShotInfoDto;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +19,7 @@ class BattleshipGameTest {
         assertEquals(game.getUntouchedShipsCount(), 10);
         assertFalse(game.isGameOver());
 
-        var oceanState = game.getOceanState();
+        var oceanState = game.getPlayerOceanState();
 
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 10; ++j) {
@@ -29,15 +30,8 @@ class BattleshipGameTest {
         int hitCount = 0;
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 10; ++j) {
-                var res = game.shootAt(i, j);
-                var state = game.getOceanState();
-
-                if (res == BattleshipGame.ShotResults.HIT) {
-                    hitCount++;
-                    assertEquals(hitCount, game.getHitCount());
-
-                    assertTrue(state[i][j].equals(IBattleshipGame.CellState.DAMAGED) || state[i][j].equals(IBattleshipGame.CellState.SUNK));
-                }
+                game.processShotInfo(new ShotInfoDto(i, j));
+                var state = game.getPlayerOceanState();
             }
         }
         assertTrue(game.isGameOver());

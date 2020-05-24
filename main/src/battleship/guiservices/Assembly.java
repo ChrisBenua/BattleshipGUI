@@ -23,7 +23,6 @@ public class Assembly {
     private IOceanCellStateColorMapper oceanCellStateColorMapper = new OceanCellStateColorMapper();
 
     public Assembly() {
-        this.hitAdapterCollection.setLogger(eventsLogger);
     }
 
     /**

@@ -35,7 +35,7 @@ public class OceanCellClickHandler implements EventHandler<MouseEvent> {
      */
     @Override
     public void handle(MouseEvent event) {
-        game.shootAt(row, col);
+        game.shootAtOpponentField(row, col);
         parent.refresh(RootPane.RefreshValues.ALL);
     }
 }

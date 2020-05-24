@@ -29,6 +29,11 @@ public class BattleshipClient implements IClient {
     }
 
     @Override
+    public void close() {
+        this.connectionThread.ifPresent(ConnectionThread::deactivate);
+    }
+
+    @Override
     public void runClientServer(String host, int port) {
         new Thread(() -> {
             try {

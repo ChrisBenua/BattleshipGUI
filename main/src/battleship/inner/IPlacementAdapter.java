@@ -12,6 +12,8 @@ public interface IPlacementAdapter {
      */
     boolean canAddShip(Ship ship, boolean shouldAdd);
 
+    void clear();
+
     /**
      * sets width of ocean
      * @param width width in terms of cells

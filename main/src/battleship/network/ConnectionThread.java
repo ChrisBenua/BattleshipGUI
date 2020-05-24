@@ -16,6 +16,7 @@ public class ConnectionThread extends Thread {
         this.socket = socket;
         outputStreamWriter = new PrintStream(socket.getOutputStream());
         this.reader = reader;
+        this.setDaemon(true);
     }
 
     public void deactivate() {
@@ -38,8 +39,13 @@ public class ConnectionThread extends Thread {
             try {
                 var bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 var jsonObject = bufferedReader.readLine();
-                reader.read(jsonObject);
-                System.out.println(jsonObject);
+
+                if (jsonObject == null) {
+                    deactivate();
+                } else {
+                    reader.read(jsonObject);
+                    System.out.println(jsonObject);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

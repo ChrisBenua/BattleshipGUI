@@ -11,18 +11,26 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
+interface IBeforeGreetingHandler {
+    void showGreetingPaneIn(Stage stage);
+}
 
 public class ServerStartPane extends GridPane implements IOnConnectionHandler {
     private TextField portTextField;
     IBattleshipGame game;
     battleship.network.Assembly networkAssembly;
+    IBeforeGreetingHandler beforeGreetingHandler;
 
-    public ServerStartPane(IBattleshipGame game, battleship.network.Assembly networkAssembly) {
+    public ServerStartPane(IBattleshipGame game, IBeforeGreetingHandler beforeGreetingHandler, battleship.network.Assembly networkAssembly) {
         this.game = game;
         this.networkAssembly = networkAssembly;
+        this.beforeGreetingHandler = beforeGreetingHandler;
 
         performLayout();
     }
@@ -59,7 +67,7 @@ public class ServerStartPane extends GridPane implements IOnConnectionHandler {
         try {
             int port = Integer.parseInt(portTextField.getText());
             if (port > 0 && port < 65536) {
-                var server = new BattleshipServer(networkAssembly);
+                var server = networkAssembly.getBattleshipServer();
                 game.setClientServer(server);
                 server.addOnConnectionHandler(this);
 
@@ -77,6 +85,15 @@ public class ServerStartPane extends GridPane implements IOnConnectionHandler {
     public void onSuccessfulConnection() {
         Platform.runLater(() -> {
             NotificationManager.showNotification("Connected successfully!", 1500, this);
+            var capturedThis = this;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> {
+                        beforeGreetingHandler.showGreetingPaneIn((Stage)capturedThis.getScene().getWindow());
+                    });
+                }
+            }, 2000);
         });
     }
 

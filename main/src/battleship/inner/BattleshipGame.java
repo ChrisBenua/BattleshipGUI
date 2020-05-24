@@ -1,12 +1,22 @@
 package battleship.inner;
 
+import battleship.gui.IRefreshable;
 import battleship.gui.RootPane;
 import battleship.network.IClientServer;
+import battleship.network.IDtoEventsHandler;
+import battleship.network.dto.GameStartingEventDto;
+import battleship.network.dto.ShotInfoDto;
+import battleship.network.dto.ShotResultDto;
+import battleship.network.dto.ShotResultEnum;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -19,16 +29,44 @@ public class BattleshipGame implements IBattleshipGame {
     private IPlacementAdapter placementAdapter;
     private IShipFactory shipFactory;
     private IEventsLogger logger;
+    private SimpleBooleanProperty hasOpponentProperty = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty isOpponentReady = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty isPlayerReady = new SimpleBooleanProperty(false);
+    private SimpleObjectProperty<GameTurn> gameTurn = new SimpleObjectProperty<>(GameTurn.CALCULATING);
+    private String winner;
+    private String loser;
 
     private int shotsFired = 0;
     private int hitCount = 0;
+    private int shipsSunk = 0;
+    private String opponentName;
+    private String playerName;
+    private SimpleBooleanProperty isMyTurn = new SimpleBooleanProperty();
 
     private IHitAdapterCollection hitAdapterCollection;
     private boolean[][] hitHistory;
 
-    private ISubscriber<RootPane.GameEvents> subscriber;
+    private CellState[][] opponentOceanState;
 
-    private IClientServer clientServer;
+    private ISubscriber<RootPane.GameEvents> subscriber;
+    private List<IRefreshable<RootPane.RefreshValues>> onUpdatePlayerFieldHandlers = new ArrayList<>();
+
+    private IClientServer clientServer = null;
+
+    @Override
+    public ReadOnlyBooleanProperty getIsMyTurn() {
+        return isMyTurn;
+    }
+
+    @Override
+    public ReadOnlyObjectProperty<GameTurn> getGameTurn() {
+        return gameTurn;
+    }
+
+    @Override
+    public void setTurn(GameTurn turn) {
+        gameTurn.set(turn);
+    }
 
     /**
      * Construct new BattleshipGame instance with all dependencies
@@ -47,9 +85,21 @@ public class BattleshipGame implements IBattleshipGame {
         this.logger = logger;
 
         hitHistory = new boolean[OCEAN_SIZE][OCEAN_SIZE];
+        this.opponentOceanState = new CellState[OCEAN_SIZE][OCEAN_SIZE];
+
+        for (int i = 0; i < OCEAN_SIZE; ++i) {
+            for (int j = 0; j < OCEAN_SIZE; ++j) {
+                this.opponentOceanState[i][j] = CellState.EMPTY;
+            }
+        }
 
         placementAdapter.setHeight(OCEAN_SIZE);
         placementAdapter.setWidth(OCEAN_SIZE);
+    }
+
+    @Override
+    public void setMyTurn(boolean isMyTurn) {
+        this.isMyTurn.set(isMyTurn);
     }
 
     /**
@@ -91,41 +141,158 @@ public class BattleshipGame implements IBattleshipGame {
         }
     }
 
-    /**
-     * Performs shot at given position
-     * @param row row of shot
-     * @param column column of shot
-     * @return ShotResult
-     */
     @Override
-    public ShotResults shootAt(int row, int column) {
-        if (hitHistory[row][column]) {
-            logger.add("You have already shot at pos: (" + row + ", " + column + ")");
-            if (Objects.nonNull(subscriber)) {
-                subscriber.accept(RootPane.GameEvents.REPEATED_HIT);
-            }
-            return ShotResults.REPEAT_SHOT;
-        }
+    public void addOnUpdateField(IRefreshable<RootPane.RefreshValues> onUpdateOpponentField) {
+        this.onUpdatePlayerFieldHandlers.add(onUpdateOpponentField);
+    }
+
+    @Override
+    public void processShotInfo(ShotInfoDto shotInfoDto) {
+        int row = shotInfoDto.getRow(), column = shotInfoDto.getCol();
+
         shotsFired++;
+
         hitHistory[row][column] = true;
         var success = hitAdapterCollection.hit(Rectangle.Point.of(column, row));
 
         if (success == IHitAdapterCollection.HitResults.HIT) {
-            this.hitCount++;
-            logger.add("Success! You hit the target at pos (" + row + ", " + column + ")");
-            return ShotResults.HIT;
+
+            if (clientServer != null) {
+                this.clientServer.write(new ShotResultDto(row, column, ShotResultEnum.HIT));
+            }
+            this.isMyTurn.set(false);
+            this.gameTurn.set(GameTurn.OPPONENT);
+            logger.add(String.format("Игрок %s: (%d, %d) = повредил Ваш корабль", getOpponentName(), row, column));
         } else if (success == IHitAdapterCollection.HitResults.SUNK) {
-            this.hitCount++;
-            if (hitAdapterCollection.getSunkCount() == TOTAL_SHIPS) {
+
+            if (this.clientServer != null) {
+                this.clientServer.write(new ShotResultDto(row, column, ShotResultEnum.SUNK));
+            }
+
+            if (isGameOver()) {
+                this.gameTurn.set(GameTurn.END);
                 if (Objects.nonNull(subscriber)) {
                     subscriber.accept(RootPane.GameEvents.END_OF_GAME);
                 }
+            } else {
+                this.isMyTurn.set(false);
+                this.gameTurn.set(GameTurn.OPPONENT);
             }
-            return ShotResults.HIT;
+            this.logger.add(String.format("Игрок %s: (%d, %d) = потопил Ваш корабль %s", getOpponentName(), row, column, this.hitAdapterCollection.getLastSunkShipType()));
         } else {
-            logger.add("Unfortunately, you missed! :-(");
-            return ShotResults.MISS;
+            logger.add(String.format("Игрок %s: (%d, %d) = промазал", getOpponentName(), row, column));
+
+            if (clientServer != null) {
+                this.clientServer.write(new ShotResultDto(row, column, ShotResultEnum.MISS));
+            }
+            this.gameTurn.set(GameTurn.ME);
+            this.isMyTurn.set(true);
         }
+
+        this.onUpdatePlayerFieldHandlers.forEach(el -> el.refresh(RootPane.RefreshValues.ALL));
+
+    }
+
+    @Override
+    public void shootAtOpponentField(int row, int column) {
+        if (!opponentOceanState[row][column].equals(CellState.EMPTY)) {
+            //logger.add("You have already shot at pos: (" + row + ", " + column + ")");
+            if (Objects.nonNull(subscriber)) {
+                subscriber.accept(RootPane.GameEvents.REPEATED_HIT);
+            }
+        } else {
+            //hitHistory[row][column] = true;
+
+            if (clientServer != null) {
+                this.clientServer.write(new ShotInfoDto(row, column));
+            }
+            this.isMyTurn.set(false);
+            this.gameTurn.set(GameTurn.CALCULATING);
+        }
+    }
+
+    @Override
+    public void setOpponentReadyStatus(boolean status) {
+        this.isOpponentReady.set(status);
+    }
+
+    @Override
+    public ObservableBooleanValue getOpponentReadyStatus() {
+        return isOpponentReady;
+    }
+
+    @Override
+    public void setPlayerReadyStatus(boolean status) {
+        this.isPlayerReady.set(status);
+    }
+
+    @Override
+    public ObservableBooleanValue getPlayerReadyStatus() {
+        return this.isPlayerReady;
+    }
+
+    @Override
+    public boolean isMyTurn() {
+        return isMyTurn.get();
+    }
+
+    @Override
+    public void processGameStartingEvent(GameStartingEventDto gameStartingEventDto) {
+        setOpponentReadyStatus(true);
+    }
+
+    @Override
+    public void processShotResult(ShotResultDto shotResultDto) {
+        System.out.println("ProcessShotResult: " + shotResultDto);
+        if (shotResultDto.getShotResult() == ShotResultEnum.MISS) {
+            this.opponentOceanState[shotResultDto.getRow()][shotResultDto.getCol()] = CellState.MISS;
+            this.logger.add(String.format("Игрoк %s (Вы):(%d, %d) = промазал", this.getPlayerName(), shotResultDto.getRow(), shotResultDto.getCol()));
+            gameTurn.set(GameTurn.OPPONENT);
+        } else if (shotResultDto.getShotResult() == ShotResultEnum.HIT) {
+            this.opponentOceanState[shotResultDto.getRow()][shotResultDto.getCol()] = CellState.DAMAGED;
+            this.isMyTurn.set(true);
+            this.gameTurn.set(GameTurn.ME);
+            this.logger.add(String.format("Игрок %s (Вы):(%d, %d) = повредили корабль оппонента", this.getPlayerName(), shotResultDto.getRow(), shotResultDto.getCol()));
+        } else {
+            this.opponentOceanState[shotResultDto.getRow()][shotResultDto.getCol()] = CellState.DAMAGED;
+
+            int res = markShipAsSunk(shotResultDto.getRow(), shotResultDto.getCol(), -1, -1);
+            shipsSunk++;
+
+            if (this.isGameOver()) {
+                gameTurn.set(GameTurn.END);
+                if (Objects.nonNull(subscriber)) {
+                    subscriber.accept(RootPane.GameEvents.END_OF_GAME);
+                }
+            } else {
+                gameTurn.set(GameTurn.ME);
+                this.isMyTurn.set(true);
+            }
+
+            this.logger.add(String.format("Игрок %s (Вы):(%d, %d) = потопили корабль противника %s", this.getPlayerName(), shotResultDto.getRow(), shotResultDto.getCol(), shipFactory.shipByLength(res).getShipType()));
+        }
+
+        this.onUpdatePlayerFieldHandlers.forEach(el -> el.refresh(RootPane.RefreshValues.ALL));
+    }
+
+    private int markShipAsSunk(int row, int col, int prevRow, int prevCol) {
+        int[] drow = {-1, 0, 1, 0};
+        int[] dcol = {0, -1, 0, 1};
+        int res = 1;
+        this.opponentOceanState[row][col] = CellState.SUNK;
+
+        for (int dir = 0; dir < drow.length; ++dir) {
+            int newRow = row + drow[dir];
+            int newCol = col + dcol[dir];
+
+            if (newRow >= 0 && newCol >= 0 && newRow < OCEAN_SIZE && newCol < OCEAN_SIZE
+                    && this.opponentOceanState[newRow][newCol] == CellState.DAMAGED
+                    && (newRow != prevRow || newCol != prevCol)) {
+                res += markShipAsSunk(newRow, newCol, row, col);
+            }
+        }
+
+        return res;
     }
 
     /**
@@ -179,7 +346,16 @@ public class BattleshipGame implements IBattleshipGame {
      */
     @Override
     public boolean isGameOver() {
-        return hitAdapterCollection.getSunkCount() == TOTAL_SHIPS;
+        boolean opponentWon = hitAdapterCollection.getSunkCount() == TOTAL_SHIPS;
+        boolean playerWon = shipsSunk == TOTAL_SHIPS;
+        if (opponentWon) {
+            this.winner = opponentName;
+            this.loser = playerName;
+        } else {
+            this.winner = playerName;
+            this.loser = opponentName;
+        }
+        return opponentWon || playerWon;
     }
 
     /**
@@ -187,7 +363,7 @@ public class BattleshipGame implements IBattleshipGame {
      * @return cells in ocean states
      */
     @Override
-    public CellState[][] getOceanState() {
+    public CellState[][] getPlayerOceanState() {
         CellState[][] states = new CellState[OCEAN_SIZE][OCEAN_SIZE];
 
         for (int row = 0; row < OCEAN_SIZE; ++row) {
@@ -217,8 +393,71 @@ public class BattleshipGame implements IBattleshipGame {
     }
 
     @Override
+    public CellState[][] getOpponentOceanState() {
+        return this.opponentOceanState;
+    }
+
+    @Override
     public void setClientServer(IClientServer clientServer) {
         this.clientServer = clientServer;
+
+
+        hasOpponentProperty.set(Objects.nonNull(this.clientServer));
+    }
+
+    @Override
+    public IClientServer getClientServer() {
+        return clientServer;
+    }
+
+    @Override
+    public SimpleBooleanProperty hasOpponent() {
+        return this.hasOpponentProperty;
+    }
+
+    @Override
+    public void setOpponentName(String name) {
+        this.opponentName = name;
+    }
+
+    @Override
+    public String getOpponentName() {
+        return this.opponentName;
+    }
+
+    @Override
+    public void setPlayerName(String name) {
+        this.playerName = name;
+    }
+
+    @Override
+    public String getPlayerName() {
+        return this.playerName;
+    }
+
+    @Override
+    public String getWinnerName() {
+        return winner;
+    }
+
+    @Override
+    public String getLoserName() {
+        return loser;
+    }
+
+    @Override
+    public int getEnemyShotsCount() {
+        return this.shotsFired;
+    }
+
+    @Override
+    public int getPlayerShotsCount() {
+        return Arrays.stream(this.opponentOceanState).flatMap(el -> Arrays.stream(el)).map(el -> {
+            if (el != CellState.EMPTY) {
+                return 1;
+            }
+            return 0;
+        }).reduce(0, Integer::sum);
     }
 
     public static class Pair<T, U> {

@@ -43,11 +43,9 @@ public interface IHitAdapterCollection {
      */
     int getDamagedCount();
 
-    /**
-     * Sets event logger
-     * @param logger events logger
-     */
-    void setLogger(IEventsLogger logger);
+    String getLastSunkShipType();
+
+    void clear();
 
     public static enum HitResults {
         MISS, HIT, SUNK

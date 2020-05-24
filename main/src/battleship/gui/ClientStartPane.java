@@ -15,8 +15,8 @@ public class ClientStartPane extends ServerStartPane {
     private TextField hostTextField;
     private TextField portTextField;
 
-    public ClientStartPane(IBattleshipGame game, Assembly networkAssembly) {
-        super(game, networkAssembly);
+    public ClientStartPane(IBattleshipGame game, IBeforeGreetingHandler handler, Assembly networkAssembly) {
+        super(game, handler, networkAssembly);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ClientStartPane extends ServerStartPane {
         try {
             int port = Integer.parseInt(portTextField.getText());
             if (port > 0 && port < 65536) {
-                var client = new BattleshipClient(networkAssembly);
+                var client = networkAssembly.getBattleshipClient();
                 game.setClientServer(client);
                 client.addOnConnectionHandler(this);
 

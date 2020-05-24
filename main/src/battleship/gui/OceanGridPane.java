@@ -5,6 +5,8 @@ import battleship.guiservices.IOceanCellStateColorMapper;
 import battleship.inner.BattleshipGame;
 import battleship.inner.IBattleshipGame;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -18,19 +20,48 @@ public class OceanGridPane extends GridPane {
     IOceanCellEventHandlerFactory factory;
     IRefreshable<RootPane.RefreshValues> parent;
     OceanCell[][] cells;
+    ObservableBooleanValue binding;
 
     public OceanGridPane(IBattleshipGame.CellState[][] states,
                          IOceanCellStateColorMapper mapper, IOceanCellEventHandlerFactory factory,
-                         IRefreshable<RootPane.RefreshValues> parent) {
+                         IRefreshable<RootPane.RefreshValues> parent, ObservableBooleanValue binding) {
 
         cells = new OceanCell[BattleshipGame.OCEAN_SIZE][BattleshipGame.OCEAN_SIZE];
-
+        this.binding = binding;
         this.states = states;
         this.mapper = mapper;
         this.factory = factory;
         this.parent = parent;
 
+        this.binding.addListener((obs, old, new_) -> {
+            if (new_) {
+                enableMouseClicks();
+            } else {
+                disableMouseClicks();
+            }
+        });
+
         paint();
+
+        if (this.binding.get()) {
+            enableMouseClicks();
+        }
+    }
+
+    private void enableMouseClicks() {
+        for (int i = 0; i < BattleshipGame.OCEAN_SIZE; ++i) {
+            for (int j = 0; j < BattleshipGame.OCEAN_SIZE; ++j) {
+                cells[i][j].setOnMouseClicked(factory.getOceanCellEventHandler(i, j, parent));
+            }
+        }
+    }
+
+    private void disableMouseClicks() {
+        for (int i = 0; i < BattleshipGame.OCEAN_SIZE; ++i) {
+            for (int j = 0; j < BattleshipGame.OCEAN_SIZE; ++j) {
+                cells[i][j].setOnMouseClicked(null);
+            }
+        }
     }
 
     public void setStates(IBattleshipGame.CellState[][] states) {
@@ -54,7 +85,7 @@ public class OceanGridPane extends GridPane {
                         mapper.map(states[row][col]),
                         binding.divide(BattleshipGame.OCEAN_SIZE + 1)
                 );
-                cell.setOnMouseClicked(factory.getOceanCellEventHandler(row, col, parent));
+                //cell.setOnMouseClicked(factory.getOceanCellEventHandler(row, col, parent));
                 GridPane.setColumnIndex(cell,col + 1);
                 GridPane.setRowIndex(cell, row + 1);
                 cells[row][col] = cell;

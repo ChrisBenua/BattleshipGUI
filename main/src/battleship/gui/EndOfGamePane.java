@@ -16,24 +16,19 @@ import javafx.scene.text.TextAlignment;
 public class EndOfGamePane extends GridPane {
     /**
      * Construct new Instance of EndOfGamePane
-     * @param hitCount number of hits in ended game
-     * @param onStartNewGame callback for starting new game
      * @param onEndGame callback for quitting game
      */
-    public EndOfGamePane(int hitCount, Runnable onStartNewGame, Runnable onEndGame) {
-        String message = "Congrats! You won!\nIt took you " + String.valueOf(hitCount) +
-                " shots to complete! Nice!";
+    public EndOfGamePane(String winner, String playerName, String opponentName, int myStepsCount, int enemyStepsCount, Runnable onEndGame) {
+        String message = String.format("Победитель -- %s", winner);
         Label label = new Label(message);
         label.setTextAlignment(TextAlignment.CENTER);
-        Button okButton = new Button("New game");
-        okButton.setMaxWidth(Double.MAX_VALUE);
-        Button quitButton = new Button("Quit");
+
+        var myStepsLabel = new Label(String.format("%s (Вы) сделали %d %s", playerName, myStepsCount, conjugate(myStepsCount)));
+        var enemyStepsLabel = new Label(String.format("%s (Оппонент) сделал %d %s", opponentName, enemyStepsCount, conjugate(enemyStepsCount)));
+
+        Button quitButton = new Button("Выйти");
         quitButton.setMaxWidth(Double.MAX_VALUE);
 
-        okButton.setOnMouseClicked(event -> {
-            this.getScene().getWindow().hide();
-            onStartNewGame.run();
-        });
 
         quitButton.setOnMouseClicked(event -> {
             this.getScene().getWindow().hide();
@@ -48,7 +43,7 @@ public class EndOfGamePane extends GridPane {
             this.getColumnConstraints().add(columnConstraint);
         }
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 4; ++i) {
             var rowConstraint = new RowConstraints();
             rowConstraint.setValignment(VPos.CENTER);
             rowConstraint.setPercentHeight(100. / 2);
@@ -56,7 +51,19 @@ public class EndOfGamePane extends GridPane {
         }
 
         this.add(label,0, 0, 5, 1);
-        this.add(okButton, 1, 1);
-        this.add(quitButton, 3, 1);
+        this.add(myStepsLabel, 0, 1, 5, 1);
+        this.add(enemyStepsLabel, 0, 2, 5, 1);
+        this.add(quitButton, 2, 3);
+    }
+
+    private String conjugate(int shotsCount) {
+        var ending = "Выстрелов";
+        if (shotsCount % 10 == 1 && ((shotsCount / 10) % 10) != 1) {
+            ending = "Выстрел";
+        } else if (shotsCount % 10 >= 2 && shotsCount % 10 < 5 && ((shotsCount / 10) % 10) != 1) {
+            ending = "Выстрела";
+        }
+
+        return ending;
     }
 }

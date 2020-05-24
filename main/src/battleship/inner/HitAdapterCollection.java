@@ -10,6 +10,7 @@ import java.util.Optional;
 public class HitAdapterCollection implements IHitAdapterCollection {
     private List<IHitAdapter> hitAdapters = new ArrayList<>();
     private Optional<IEventsLogger> logger = Optional.empty();
+    private String lastSunkShipType = null;
 
     /**
      * Adds hit adapter of ship
@@ -42,9 +43,10 @@ public class HitAdapterCollection implements IHitAdapterCollection {
             boolean result = adapter_.hit(target);
              if (result) {
                  if (adapter_.getShip().isSunk()) {
-                     logger.ifPresent(logger_ -> {
-                         logger_.add("You just sunk ship of type: " + adapter_.getShip().getShipType());
-                     });
+                     lastSunkShipType = adapter_.getShip().getShipType();
+//                     logger.ifPresent(logger_ -> {
+//                         logger_.add("You just sunk ship of type: " + adapter_.getShip().getShipType());
+//                     });
                      return HitResults.SUNK;
                  } else {
                      return HitResults.HIT;
@@ -101,13 +103,14 @@ public class HitAdapterCollection implements IHitAdapterCollection {
         }).reduce(0, Integer::sum);
     }
 
-    /**
-     * Sets events logger
-     * @param logger logger
-     */
     @Override
-    public void setLogger(IEventsLogger logger) {
-        this.logger = Optional.of(logger);
+    public String getLastSunkShipType() {
+        return lastSunkShipType;
+    }
+
+    @Override
+    public void clear() {
+        hitAdapters.clear();
     }
 
     /**

@@ -1,7 +1,9 @@
 package battleship.network;
 
 public interface IDtoReader {
-    void addEventsHandler(IDtoReaderEventsHandler handler);
+    void addEventsHandler(IDtoEventsHandler handler);
+
+    void removeEventsHandler(IDtoEventsHandler handler);
 
     void read(String object);
 }

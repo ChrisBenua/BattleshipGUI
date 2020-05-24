@@ -1,24 +1,46 @@
 package battleship.inner;
 
+import battleship.gui.IRefreshable;
 import battleship.gui.RootPane;
 import battleship.network.IClientServer;
+import battleship.network.IDtoEventsHandler;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.adapter.JavaBeanBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 
 /**
  * Interfaces for defining main operations with game
  */
-public interface IBattleshipGame {
+public interface IBattleshipGame extends IDtoEventsHandler {
     /**
      * Places ships randomly, validating their position
      */
     void placeShipsRandomly();
 
-    /**
-     * Performs a shot at given position
-     * @param row targeted row
-     * @param column targeted column
-     * @return MISS if shot didnt deal any damage, HIT, it ship was damaged, SUNK if ship got sunk after this shot
-     */
-    BattleshipGame.ShotResults shootAt(int row, int column);
+    void addOnUpdateField(IRefreshable<RootPane.RefreshValues> onUpdateOpponentField);
+
+    void shootAtOpponentField(int row, int column);
+
+    void setOpponentReadyStatus(boolean status);
+
+    ObservableBooleanValue getOpponentReadyStatus();
+
+    void setPlayerReadyStatus(boolean status);
+
+    ObservableBooleanValue getPlayerReadyStatus();
+
+    boolean isMyTurn();
+
+    ReadOnlyBooleanProperty getIsMyTurn();
+
+    ReadOnlyObjectProperty<GameTurn> getGameTurn();
+
+    void setTurn(GameTurn turn);
+
+    void setMyTurn(boolean turn);
 
     /**
      * Sets game events subscriber
@@ -66,11 +88,37 @@ public interface IBattleshipGame {
      * Returns states of ocean cells
      * @return 2-d array of ocean cells states
      */
-    CellState[][] getOceanState();
+    CellState[][] getPlayerOceanState();
+
+    CellState[][] getOpponentOceanState();
 
     void setClientServer(IClientServer clientServer);
 
+    IClientServer getClientServer();
+
+    SimpleBooleanProperty hasOpponent();
+
+    void setOpponentName(String name);
+
+    String getOpponentName();
+
+    void setPlayerName(String name);
+
+    String getPlayerName();
+
+    String getWinnerName();
+
+    String getLoserName();
+
+    int getPlayerShotsCount();
+
+    int getEnemyShotsCount();
+
     public static enum CellState {
         EMPTY, MISS, DAMAGED, SUNK
+    }
+
+    public static enum GameTurn {
+        ME, OPPONENT, CALCULATING, END
     }
 }

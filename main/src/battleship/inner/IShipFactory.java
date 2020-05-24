@@ -27,4 +27,6 @@ public interface IShipFactory {
      * @return new "Battleship" ship
      */
     public Ship battleShip();
+
+    public Ship shipByLength(int len);
 }

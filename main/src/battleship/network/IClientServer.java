@@ -7,4 +7,6 @@ public interface IClientServer {
     void write(ITypedDto dto);
 
     void addOnConnectionHandler(IOnConnectionHandler handler);
+
+    void close();
 }

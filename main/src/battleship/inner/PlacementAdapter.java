@@ -12,27 +12,25 @@ public class PlacementAdapter implements IPlacementAdapter {
 
     @Override
     public boolean canAddShip(Ship ship, boolean shouldAdd) {
-        Rectangle newShipRect = null;
+        Rectangle finalNewShipRect = RectangleUtil.rectForShip(ship);
 
-        if (ship.isHorizontal()) {
-            newShipRect = new Rectangle(Rectangle.Point.of(ship.getBowColumn(), ship.getBowRow()), ship.getLength(), 1);
-        } else {
-            newShipRect = new Rectangle(Rectangle.Point.of(ship.getBowColumn(), ship.getBowRow()), 1, ship.getLength());
-        }
-
-        if (newShipRect.getRightBottomPoint().getX() > width || newShipRect.getRightBottomPoint().getY() > height) {
+        if (finalNewShipRect.getRightBottomPoint().getX() > width || finalNewShipRect.getRightBottomPoint().getY() > height) {
             return false;
         }
 
-        Rectangle finalNewShipRect = newShipRect;
         if (busyRectangles.stream().anyMatch(rect -> rect.intersectsWith(finalNewShipRect))) {
             return false;
         } else {
             if (shouldAdd) {
-                busyRectangles.add(newShipRect);
+                busyRectangles.add(finalNewShipRect);
             }
             return true;
         }
+    }
+
+    @Override
+    public void clear() {
+        busyRectangles.clear();
     }
 
     @Override

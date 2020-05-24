@@ -27,7 +27,14 @@ public class BattleshipServer implements IServer {
 
     @Override
     public void addOnConnectionHandler(IOnConnectionHandler handler) {
-        handlerList.add(handler);
+        if (!handlerList.contains(handler)) {
+            handlerList.add(handler);
+        }
+    }
+
+    @Override
+    public void close() {
+        this.connectionThread.ifPresent(ConnectionThread::deactivate);
     }
 
     public void setBusy(boolean isBusy) {
@@ -67,6 +74,7 @@ public class BattleshipServer implements IServer {
     }
 
     public void runClientServer(int port) throws IOException {
+
         this.serverSocket = new ServerSocket(port);
 
         new Thread(() -> {
